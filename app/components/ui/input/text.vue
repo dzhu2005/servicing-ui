@@ -1,5 +1,5 @@
 <template>
-     <UFormField size="sm" :label="label" 
+     <UFormField size="sm" :name="name" :label="label"
       :ui="{
         label: 'text-[12px] font-semibold capitalize ',
         labelWrapper:'',
@@ -8,9 +8,9 @@
         description: 'm-0',
         error: 'm-0',
         help: 'm-0'
-      }"     
+      }"
      >
-      <UInput v-model:value="model"  />
+      <UInput v-model="model" />
      </UFormField>
 </template>
 
@@ -18,6 +18,7 @@
 const model = defineModel();
 defineProps<{
   label: string
+  name: string
 }>();
 </script>
 
