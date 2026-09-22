@@ -1,0 +1,28 @@
+{
+  "name": "servicing-ui",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "build": "nuxt build",
+    "dev": "nuxt dev",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview",
+    "postinstall": "nuxt prepare"
+  },
+  "dependencies": {
+    "@nuxt/icon": "2.5.1",
+    "@nuxt/image": "2.1.0",
+    "@nuxt/ui": "4.11.1",
+    "@nuxtjs/i18n": "10.6.0",
+    "@pinia/nuxt": "1.0.2",
+    "@vueuse/nuxt": "15.0.0",
+    "nuxt": "^4.5.2",
+    "pinia": "^4.0.3",
+    "vue": "^3.5.42",
+    "vue-router": "^5.3.1"
+  },
+  "devDependencies": {
+    "@iconify-json/lucide": "^1.2.133",
+    "@iconify-json/material-symbols": "^1.2.92"
+  }
+}
