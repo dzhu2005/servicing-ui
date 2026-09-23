@@ -31,8 +31,11 @@
 </template>
 
 <script lang="ts" setup>
- const uiStore = useUiStore()
-uiStore.setTitle('Call Centre Dashboard')
+const title =useTitle()
+onMounted(()=>{
+  title.value.title = "Call Centre Dashboard";
+  title.value.description = undefined
+})
 
 </script>
  

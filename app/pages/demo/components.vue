@@ -33,6 +33,5 @@
 
 </template>
 <script setup lang="ts">
-const uiStore = useUiStore()
-uiStore.setTitle('Components')
+
 </script>

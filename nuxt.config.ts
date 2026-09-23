@@ -1,7 +1,7 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
-  devtools: { enabled: true },
+  devtools: { enabled: false },
   modules: ['@nuxt/ui', '@pinia/nuxt', '@nuxtjs/i18n', '@nuxt/image', '@vueuse/nuxt', '@nuxt/icon', 'nuxt-zod'],
   css: ['~/assets/css/main.css'],
   app: {
@@ -18,5 +18,5 @@ export default defineNuxtConfig({
       { code: 'en', name: 'English', language: 'en-US' }
     ],
     defaultLocale: 'en'
-  }
+  } 
 })

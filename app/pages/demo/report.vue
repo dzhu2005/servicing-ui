@@ -5,8 +5,11 @@
 </template>
 
 <script lang="ts" setup>
-const uiStore = useUiStore()
-uiStore.setTitle('Executive Reporting Dashboard')
+const title =useTitle()
+onMounted(()=>{
+  title.value.title = "Executive. Reporting Dashboard";
+  title.value.description = undefined
+})
 </script>
 
 <style>

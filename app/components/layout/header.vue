@@ -11,19 +11,30 @@
 
         <div>
           
-          <div class=" font-semibold">{{ uiStore.ui.header.title }}</div>
+          <div class=" font-semibold">
+            {{  title.title }}
+            <span v-if="title.description">{{ title.description }}</span>
+          </div>
 
         </div>
-
-
+ 
 
         <div><UButton color="neutral" variant="ghost" icon="lucide:bell" /></div>        
       </header>
 </template>
 
 <script lang="ts" setup>
-const userStore = useUserStore()
-const uiStore = useUiStore()
+const userStore = useUserStore() 
+const title = useTitle();
+
+
+
+watch(title,(n)=>{
+  
+},{
+  deep:true
+})
+ 
 </script>
 
 <style>
