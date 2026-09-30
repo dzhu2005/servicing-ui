@@ -55,10 +55,6 @@ const state = reactive<Partial<Schema>>({
 const onSubmit=()=>{
    console.log( 'submit')
 }
-// const onSubmit=(event: FormSubmitEvent<Schema>)=>{
-//   console.log( 'submit')
-// }
-
 
 
 </script>
