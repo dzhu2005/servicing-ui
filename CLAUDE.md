@@ -4,46 +4,58 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this is
 
-`servicing-ui` is a Nuxt 4 application (early-stage — still close to a scaffolded starter). It uses `@nuxt/ui` v4 as the component library, Tailwind CSS v4 (via `@nuxt/ui`'s Tailwind integration, imported in `app/assets/css/main.css`), Pinia for state, `@nuxtjs/i18n` for translations, `@nuxt/image` and `@nuxt/icon`, and VueUse.
-
-This is not a git repository (no `.git` directory) — do not assume git-based workflows are available unless one is initialized.
+`servicing-ui` is an early-stage Nuxt 4 app for "Scarlett Network by Axiom Innovations" (a lending/servicing product). Stack: `@nuxt/ui` v4 (with Tailwind v4), Pinia, `@nuxtjs/i18n` (English only so far), `nuxt-zod` + Zod v4, VueUse, `@nuxt/image`, `@nuxt/icon`. On the server: AWS Secrets Manager for configuration, and Drizzle ORM over `pg` for Postgres.
 
 ## Commands
 
-Package manager is **pnpm** (see `pnpm-lock.yaml` / `pnpm-workspace.yaml`).
+Use **pnpm**. `pnpm-lock.yaml` is the lockfile that counts; ignore the stray `package-lock.json`.
 
-- `pnpm dev` — start the dev server at `http://localhost:3000`
-- `pnpm build` — production build
-- `pnpm generate` — static site generation
-- `pnpm preview` — preview a production build locally
-- `postinstall` runs `nuxt prepare` automatically after `pnpm install`
+- `pnpm dev`: dev server at `http://localhost:3000`
+- `pnpm build` / `pnpm preview`: production build and preview
+- `pnpm drizzle-kit <cmd>`: needs `DATABASE_URL` set, because `drizzle.config.ts` can't read the AWS-loaded configuration
 
-There is no test runner, lint command, or CI configuration set up in this repo currently.
+There is no test runner, linter or CI. You can only check server work against the real AWS secret and database by running `pnpm dev` and calling the endpoints.
 
-## Architecture
+## Server architecture
 
-This uses the **Nuxt 4 directory structure**, where app code lives under `app/` (not the project root):
+Everything secret stays on the server. Nothing goes into `runtimeConfig.public`.
 
-- `app/app.vue` — root component; wraps everything in `<UApp>` (Nuxt UI's app provider) + `<NuxtLayout>` + `<NuxtPage>`.
-- `app/layouts/default.vue` — the default layout. Currently contains an inline sidebar/header/footer implementation (built with `USidebar`, `UNavigationMenu`, `UDropdownMenu`) rather than delegating to the components in `app/components/layout/`. When refactoring the layout, prefer extracting into `AppSidebar.vue` / `AppFooter.vue` and using them here instead of the inline markup.
-- `app/components/layout/` — `AppSidebar.vue` (currently an empty shell) and `AppFooter.vue` (a working example: reads a `version` prop, uses `font-body` and CSS custom properties from `main.css`, e.g. `var(--color-ink-muted)`).
-- `app/pages/` — file-based routing. `demo/dz.vue` is a working scratch/demo page duplicating the sidebar layout logic; `demo/index.vue` is an empty placeholder.
-- `app/assets/css/main.css` — imports `tailwindcss` and `@nuxt/ui`, then defines the design token system as CSS custom properties on `:root` (`--color-primary`, `--color-ink`, `--color-canvas`, `--radius-*`, etc.). **Use these tokens** (`var(--color-ink)`, `var(--color-hairline)`, etc.) rather than hardcoding hex values or falling back to default Tailwind/Nuxt UI palette colors, to stay consistent with the existing design system.
-- `app.config.ts` — Nuxt UI theme config; currently just sets `ui.colors.primary` to `'blue'`.
-- `nuxt.config.ts` — registers modules, loads the `Inter` font via Google Fonts `<link>` tags, and configures `@nuxtjs/i18n` (currently English-only, `en` / `en-US`).
+- **Configuration** (`server/utils/configuration.ts`): `getConfiguration()` reads the JSON secret named in `runtimeConfig.aws` (default `secman-los-uat` in `ca-central-1`). Override it with `NUXT_AWS_PROFILE`, `NUXT_AWS_REGION` or `NUXT_AWS_SECRET_NAME`.
+  - **Credentials:** the local `secman-los-dev` profile is tried first, then the default AWS chain (environment variables, ECS/EC2 role).
+  - **Caching:** results are cached in memory for one hour. If a refresh fails, the last good value is kept.
+  - **Startup:** `server/plugins/configuration.ts` loads the config when the server starts.
+  - **Type:** the shape is `Configuration` in `shared/types/configuration.d.ts`.
+  - **Parsing:** the secret contains raw newlines inside string values (PEM keys), so it goes through a lenient parser. Plain `JSON.parse` fails on it.
+- **Database** (`server/utils/db.ts`): `await useDb()` returns a Drizzle client. It's built from `Configuration.Database` and rebuilt if those settings change.
+  - **TLS:** connections check the server certificate against `server/assets/certs/rds-global-bundle.pem`, Amazon's public RDS CA bundle, which Nitro includes in the build. Don't swap this for `rejectUnauthorized: false`.
+  - **Schema:** `server/database/schema.ts` mirrors tables in the existing `los.htb` database, which another system owns. Add tables by introspecting the live schema, and don't generate or run migrations against it.
+  - **IDs:** `bigint` columns use `mode: 'number'` so results can be sent as JSON.
+- **Demo endpoints** (`/api/get-configuration`, `/api/get-users`): these only work under `import.meta.dev` and return 404 in production, because they expose credentials and user data. `get-users` also leaves out `refresh_token`. Keep this guard on any debug route that returns secrets or personal data.
 
-### Component conventions observed
+## App architecture
 
-- Favor Nuxt UI components (`UButton`, `USidebar`, `UNavigationMenu`, `UDropdownMenu`, `UIcon`, etc.) over hand-rolled markup.
-- Icons use the `lucide:` and `i-lucide-` Iconify prefixes (`@iconify-json/lucide` and `@iconify-json/material-symbols` are the installed icon sets).
-- `<script setup lang="ts">` is the convention for component logic.
+- **Layout:** `app/layouts/default.vue` awaits `useUserStore().loadUser()`, then renders `layout-sidebar`, `layout-header` and the page slot.
+  - **Header title:** pages set it by changing `useTitle()` (shared `useState` in `app/composables/states.ts`), usually in `onMounted`.
+- **User store** (`app/stores/user.ts`): currently **hard-coded mock data**. That includes the user, the lenders, and the sidebar menu items (`userMenu.items`). Picking a lender changes `user.userColor.primary`. The sidebar's open/closed state is `sidebarOpenFlag`, also in this store.
+- **Component names come from their folder path.** For example, `components/ui/input/currency.vue` is used as `<ui-input-currency>`, and `components/layout/sidebar.vue` as `<layout-sidebar>`.
+  - `ui/input/*` are `UFormField` wrappers that use `v-model`.
+  - `ui/btn/*` are styled `UButton`s.
+- **Schema-driven forms:** `<ui-form-auto :form v-model>` takes a `DZFormType` from `shared/types/global.d.ts`. That is a list of fields, each with a `type` (`text`, `int`, `currency`, `rate`, `date`, `divider`, …) and `validations`.
+  - It builds a Zod schema at runtime via `useZod()` and renders the matching `ui-input-*` component for each field.
+  - To add a field type: extend the `type` union in `global.d.ts`, then add both a render branch and a Zod branch in `auto.vue`.
+  - `pages/demo/form-dz.vue` is the working example.
+- **Pages:** `app/pages/demo/*` are design/prototype pages (dashboards, report, forms). There are no production routes yet.
+- **Styling:**
+  - **Design tokens:** use the CSS custom properties defined on `:root` in `app/assets/css/main.css` (`var(--color-ink)`, `var(--color-hairline)`, `--radius-*`, …) rather than new hex values. The brand blue is `#0075de`/`#0076de`. It's set both as `--ui-primary` and in `app.config.ts`, and some existing components still hard-code it in their `:ui` classes.
+  - **Icons:** use the `lucide:` / `i-lucide-` prefixes. `material-symbols` is also installed.
+  - Use `<script setup lang="ts">`, and prefer Nuxt UI components over hand-written markup.
 
-## Design source (pen.dev / Pencil MCP)
+## Task specs and designs
 
-This project is driven in part by Figma-like designs stored as `.pen` files and accessed through the **pencil** MCP server. `.pen` files are encrypted — never use `Read` or `Grep` on them directly; always go through the `mcp__pencil__*` tools to inspect or sync designs.
-
-`ai/command/01.init/` contains the original agent instructions used to scaffold this project and to build page layouts from pen.dev frames (e.g. `02.layout.md` describes generating a `/demo/page` route from a frame named "Loan page", with a reusable layout wrapper for nav + footer). Treat these as historical/task-spec files, not live documentation — check current app code before assuming a described feature exists.
-
-## Branding note
-
-The footer (`AppFooter.vue`) references "Scarlett Network by Axiom Innovations" — this app is being built for that product/organization.
+- **Task specs:** `ai/command/01.init/*.md` are numbered task specs that the user asks to have "run". Each file describes one piece of work:
+  - `02`: layout from a pen.dev frame
+  - `03`: AWS config
+  - `04`: Drizzle/Postgres
+  
+  Treat them as instructions for that task, not as documentation of what exists. Check the code first.
+- **Designs:** they live in `.pen` files reached through the **pencil** MCP server. `.pen` files are encrypted, so never `Read` or `Grep` them; always use the `mcp__pencil__*` tools.
