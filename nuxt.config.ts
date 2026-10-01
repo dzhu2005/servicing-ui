@@ -13,6 +13,15 @@ export default defineNuxtConfig({
       ]
     }
   },
+  // Server-only (not under `public`). Override with NUXT_AWS_PROFILE,
+  // NUXT_AWS_REGION, NUXT_AWS_SECRET_NAME.
+  runtimeConfig: {
+    aws: {
+      profile: 'secman-los-dev',
+      region: 'ca-central-1',
+      secretName: 'secman-los-uat'
+    }
+  },
   i18n: {
     locales: [
       { code: 'en', name: 'English', language: 'en-US' }
