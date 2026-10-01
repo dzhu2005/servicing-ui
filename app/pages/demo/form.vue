@@ -22,6 +22,9 @@
 </template>
 
 <script lang="ts" setup>
+
+navigateTo('/demo/form-dz')
+
 const title =useTitle()
 onMounted(()=>{
   title.value.title = "Form";

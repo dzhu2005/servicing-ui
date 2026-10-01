@@ -15,7 +15,6 @@
     "@nuxt/ui": "4.11.1",
     "@nuxtjs/i18n": "10.6.0",
     "@pinia/nuxt": "1.0.2",
-    "@vueuse/nuxt": "15.0.0",
     "nuxt": "^4.5.2",
     "nuxt-zod": "^1.5.0",
     "pinia": "^4.0.3",
@@ -25,6 +24,8 @@
   },
   "devDependencies": {
     "@iconify-json/lucide": "^1.2.133",
-    "@iconify-json/material-symbols": "^1.2.92"
+    "@iconify-json/material-symbols": "^1.2.92",
+    "@vueuse/core": "^15.0.0",
+    "@vueuse/nuxt": "^15.0.0"
   }
 }

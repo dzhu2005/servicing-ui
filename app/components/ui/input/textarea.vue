@@ -1,5 +1,6 @@
 <template>
      <UFormField size="sm" :name="name" :label="label"
+    
       :ui="{
         label: 'text-[12px] font-semibold capitalize ',
         labelWrapper:'',
@@ -10,7 +11,8 @@
         help: 'm-0'
       }"
      >
-      <UInput  class="w-full" v-model="model" />
+
+     <UTextarea  class="w-full"  v-model="model" />
      </UFormField>
 </template>
 
