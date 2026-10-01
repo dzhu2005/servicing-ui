@@ -59,3 +59,14 @@ Everything secret stays on the server. Nothing goes into `runtimeConfig.public`.
   
   Treat them as instructions for that task, not as documentation of what exists. Check the code first.
 - **Designs:** they live in `.pen` files reached through the **pencil** MCP server. `.pen` files are encrypted, so never `Read` or `Grep` them; always use the `mcp__pencil__*` tools.
+
+## Claude workflow for each Claude task
+1. After Claude udnerstand user requirements, summary a task slug(kebab-case), slug will be use for name the git worktree
+2. create git worktree 
+3. work in new worktree, never work on main tree
+4. after finish the task show me the command how to:
+  1. How to merge to dev branch
+  2. How to delete current work tree
+5. after finish, start the application
+
+ 
