@@ -20,8 +20,8 @@
           :content="{ align: 'start', collisionPadding: 12 }"
           :ui="{ content: 'w-(--reka-dropdown-menu-trigger-width) bg-white  min-w-65 ' }"
         >
-          <div v-if="userStore.sidebarOpenFlag" class="w-full bg-white">
-            <div class="border border-slate-300 rounded-lg p-2 flex gap-2 items-center w-full cursor-pointer">            
+          <div v-if="userStore.sidebarOpenFlag" class="w-full">
+            <div class="border border-slate-300 rounded-lg p-2 flex gap-2 items-center w-full cursor-pointer bg-white">            
               <div class="p-2 rounded-md text-white text-xs font-extrabold" :style="'background-color:' + userStore.user.userColor.primary">
                 {{  userStore.selectedLender.icon }}
               </div>
