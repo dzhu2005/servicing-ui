@@ -8,6 +8,7 @@
   <ui-btn-link to="/demo/components">Components</ui-btn-link>
   <ui-btn-link to="/demo/form">Form</ui-btn-link>
 
+  <ui-btn-link to="/demo/page-types">Page Types</ui-btn-link>
 </div>
 
 
