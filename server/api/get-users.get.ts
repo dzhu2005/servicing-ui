@@ -4,6 +4,10 @@ import { users } from '../database/schema'
 // Demo endpoint, dev only (404 in production builds). refresh_token is left
 // out because it's a live credential.
 export default defineEventHandler(async () => {
+
+
+    throw createError( {statusCode: 500, message: "this is message", statusMessage: "this is status message"});
+
     if (!import.meta.dev) {
         throw createError({ statusCode: 404 })
     }

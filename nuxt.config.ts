@@ -1,4 +1,6 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
+import { join } from 'node:path'
+
 export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
   devtools: { enabled: false },
@@ -27,5 +29,13 @@ export default defineNuxtConfig({
       { code: 'en', name: 'English', language: 'en-US' }
     ],
     defaultLocale: 'en'
-  } 
+  },
+  hooks: {
+    // Setting `nitro.errorHandler` directly would replace Nuxt's handler (and
+    // app/error.vue). This hook runs after Nuxt registers it, so ours goes
+    // first and non-/api errors still fall through to Nuxt.
+    'nitro:config'(config) {
+      config.errorHandler = [join(config.rootDir!, 'server/error'), config.errorHandler ?? []].flat()
+    }
+  }
 })
