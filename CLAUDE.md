@@ -30,7 +30,8 @@ Everything secret stays on the server. Nothing goes into `runtimeConfig.public`.
   - **TLS:** connections check the server certificate against `server/assets/certs/rds-global-bundle.pem`, Amazon's public RDS CA bundle, which Nitro includes in the build. Don't swap this for `rejectUnauthorized: false`.
   - **Schema:** `server/database/schema.ts` mirrors tables in the existing `los.htb` database, which another system owns. Add tables by introspecting the live schema, and don't generate or run migrations against it.
   - **IDs:** `bigint` columns use `mode: 'number'` so results can be sent as JSON.
-- **Demo endpoints** (`/api/get-configuration`, `/api/get-users`): these only work under `import.meta.dev` and return 404 in production, because they expose credentials and user data. `get-users` also leaves out `refresh_token`. Keep this guard on any debug route that returns secrets or personal data.
+- **Logging** (`server/utils/logger.ts`): use the auto-imported pino `logger`, not `console`. Pass errors as `logger.error({ err: error }, '[area] message')`. In dev it prints through pino-pretty; in production it writes JSON lines. Set the level with `NUXT_LOG_LEVEL` (default `info`).
+- **Demo endpoints** (`/api/get-configuration`, `/api/get-users`, `/api/get-log`): these only work under `import.meta.dev` and return 404 in production, because they expose credentials and user data. `get-users` also leaves out `refresh_token`. Keep this guard on any debug route that returns secrets or personal data.
 
 ## App architecture
 

@@ -23,8 +23,8 @@ export async function useRedis(): Promise<Redis> {
         tls: { servername: settings.Host },
         maxRetriesPerRequest: 3
     })
-    client.on('error', error => console.error('[redis] connection error', error))
+    client.on('error', error => logger.error({ err: error }, '[redis] connection error'))
     settingsKey = key
-    previous?.quit().catch(error => console.error('[redis] failed to close previous client', error))
+    previous?.quit().catch(error => logger.error({ err: error }, '[redis] failed to close previous client'))
     return client
 }

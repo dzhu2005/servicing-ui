@@ -11,7 +11,7 @@ export default defineNitroErrorHandler((error, event) => {
     // 5xx and unhandled errors can carry SQL, hostnames or secrets, so their
     // details stay in the server log in production.
     const hide = isServerError && !import.meta.dev
-    if (isServerError) console.error(`[api] ${event.method} ${event.path}`, error)
+    if (isServerError) logger.error({ err: error }, `[api] ${event.method} ${event.path}`)
 
     const body: ApiErrorResponse = {
         error: true,

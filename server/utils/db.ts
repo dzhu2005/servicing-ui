@@ -37,6 +37,6 @@ export async function useDb(): Promise<Database> {
     })
     db = drizzle(pool, { schema })
     settingsKey = key
-    previous?.end().catch(error => console.error('[db] failed to close previous pool', error))
+    previous?.end().catch(error => logger.error({ err: error }, '[db] failed to close previous pool'))
     return db
 }

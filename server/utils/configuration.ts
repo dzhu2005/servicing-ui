@@ -66,7 +66,7 @@ export async function getConfiguration(): Promise<Configuration> {
         })
         .catch((error) => {
             if (!cached) throw error
-            console.error('[configuration] refresh failed, serving previous value', error)
+            logger.error({ err: error }, '[configuration] refresh failed, serving previous value')
             return cached
         })
         .finally(() => {
